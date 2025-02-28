@@ -67,6 +67,33 @@ function handleAlphanumericInput(inputElement, errorElementId, maxLength) {
         }
     }
 }
+
+/**
+ * Function to validate input length (min 5, max 15 characters).
+ * @param {HTMLInputElement} input - The input field to validate.
+ * @param {string} errorElementId - The ID of the error message element.
+ */
+function validateLength(input, errorElementId) {
+    const minLength = 5;
+    const maxLength = 15;
+    const value = input.value.trim();
+    const errorElement = document.getElementById(errorElementId);
+
+    // Check length validation
+    if (value.length === 0) {
+        errorElement.textContent = "UserId not less then 5 characture.";
+        errorElement.textContent = "UserId not more then 15 characture.";
+        
+    } else if (value.length < minLength) {
+        errorElement.textContent = `UserId must be at least ${minLength} characters.`;
+    } else if (value.length > maxLength) {
+        errorElement.textContent = `UserId must not exceed ${maxLength} characters.`;
+       
+    } else {
+        errorElement.textContent = ""; // Clear error if valid
+    }
+}
+
  
 function validateLetterInput(inputElement, errorElementId, maxLength) {
     const errorMessage = document.getElementById(errorElementId);
@@ -223,6 +250,11 @@ function validateAlphanumericInput(inputElement, errorElementId, maxLength) {
     else {
         errorMessage.textContent = '';
     }
+}
+function numberLength(input) {
+	if (input.value.length > 10) {
+		input.value = input.value.slice(0, 10);
+	}
 }
 
 

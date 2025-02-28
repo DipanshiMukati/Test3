@@ -1,5 +1,3 @@
-
-
 package in.co.rays.project_3.controller;
 
 import java.io.IOException;
@@ -14,62 +12,62 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import in.co.rays.project_3.dto.BaseDTO;
-import in.co.rays.project_3.dto.StockPurchaseDTO;
+import in.co.rays.project_3.dto.CompensationDTO;
 import in.co.rays.project_3.exception.ApplicationException;
 import in.co.rays.project_3.model.ModelFactory;
-import in.co.rays.project_3.model.StockPurchaseModelInt;
+import in.co.rays.project_3.model.CompensationModelInt;
 import in.co.rays.project_3.util.DataUtility;
 import in.co.rays.project_3.util.PropertyReader;
 import in.co.rays.project_3.util.ServletUtility;
 
-@WebServlet(name ="StockPurchaseListCtl", urlPatterns = "/ctl/StockPurchaseListCtl")
-public class StockPurchaseListCtl extends BaseCtl {
+@WebServlet(name = "CompensationListCtl", urlPatterns = { "/ctl/CompensationListCtl" })
+public class CompensationListCtl extends BaseCtl {
 
 	@Override
 	protected void preload(HttpServletRequest request) {
 
 		Map<Integer, String> map = new HashMap();
-		map.put(1, "Market");
-		map.put(2, "Limit");
+		map.put(1, "Boss");
+		map.put(2, "Manager");
+		map.put(3, "Worker");
 
-		
-		request.setAttribute("imp", map);
-	    
+		request.setAttribute("staffmember1", map);
+
+		Map<Integer, String> map1 = new HashMap();
+		map1.put(1, "Active");
+		map1.put(2, "Inactive");
+
+		request.setAttribute("state1", map1);
+
 	}
 
+	@Override
 	protected BaseDTO populateDTO(HttpServletRequest request) {
-		 StockPurchaseDTO dto = new  StockPurchaseDTO();
-		
-         
-         System.out.println(request.getParameter("date"));      
-   
-		 dto.setId(DataUtility.getLong(request.getParameter("id")));
-		 dto.setQuantity(DataUtility.getInt(request.getParameter("quantity")));
-		 dto.setPurchasePrice(DataUtility.getDouble(request.getParameter("purchasePrice")));
-         dto.setPurchaseDate(DataUtility.getDate(request.getParameter("purchaseDate")));
+		CompensationDTO dto = new CompensationDTO();
 
-         dto.setOrderType(DataUtility.getString(request.getParameter("orderType")));
-         
+		dto.setId(DataUtility.getLong(request.getParameter("id")));
+		dto.setStaffMember(DataUtility.getString(request.getParameter("staffMember")));
+		dto.setPaymentAmount(DataUtility.getInt(request.getParameter("paymentAmount")));
+		dto.setDateApplied(DataUtility.getDate(request.getParameter("dateApplied")));
+		dto.setState(DataUtility.getString(request.getParameter("state")));
 
-        populateBean(dto,request);
-		
-
+		populateBean(dto, request);
 		return dto;
-
 	}
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		List list;
 		List next;
 		int pageNo = 1;
 		int pageSize = DataUtility.getInt(PropertyReader.getValue("page.size"));
-		StockPurchaseDTO dto = (StockPurchaseDTO) populateDTO(request);
+		CompensationDTO dto = (CompensationDTO) populateDTO(request);
 
-		StockPurchaseModelInt model = ModelFactory.getInstance().getStockPurchaseModel();
+		CompensationModelInt model = ModelFactory.getInstance().getCompensationModel();
 		try {
 			list = model.search(dto, pageNo, pageSize);
 
-			ArrayList a = (ArrayList<StockPurchaseDTO>) list;
+			ArrayList a = (ArrayList<CompensationDTO>) list;
 
 			next = model.search(dto, pageNo + 1, pageSize);
 			ServletUtility.setList(list, request);
@@ -90,7 +88,6 @@ public class StockPurchaseListCtl extends BaseCtl {
 			ServletUtility.handleException(e, request, response);
 			return;
 		} catch (Exception e) {
-// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -105,17 +102,18 @@ public class StockPurchaseListCtl extends BaseCtl {
 
 		pageNo = (pageNo == 0) ? 1 : pageNo;
 		pageSize = (pageSize == 0) ? DataUtility.getInt(PropertyReader.getValue("page.size")) : pageSize;
-		StockPurchaseDTO dto = (StockPurchaseDTO) populateDTO(request);
+		CompensationDTO dto = (CompensationDTO) populateDTO(request);
 		String op = DataUtility.getString(request.getParameter("operation"));
 
 		String[] ids = request.getParameterValues("ids");
-		StockPurchaseModelInt model = ModelFactory.getInstance().getStockPurchaseModel();
+		CompensationModelInt model = ModelFactory.getInstance().getCompensationModel();
 		try {
 
 			if (OP_SEARCH.equalsIgnoreCase(op) || "Next".equalsIgnoreCase(op) || "Previous".equalsIgnoreCase(op)) {
 
 				if (OP_SEARCH.equalsIgnoreCase(op)) {
-										pageNo = 1;
+
+					pageNo = 1;
 				} else if (OP_NEXT.equalsIgnoreCase(op)) {
 					pageNo++;
 				} else if (OP_PREVIOUS.equalsIgnoreCase(op) && pageNo > 1) {
@@ -123,16 +121,16 @@ public class StockPurchaseListCtl extends BaseCtl {
 				}
 
 			} else if (OP_NEW.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.STOCKPURCHASE_CTL, request, response);
+				ServletUtility.redirect(ORSView.COMPENSATION_CTL, request, response);
 				return;
 			} else if (OP_RESET.equalsIgnoreCase(op)) {
 
-				ServletUtility.redirect(ORSView.STOCKPURCHASE_LIST_CTL, request, response);
+				ServletUtility.redirect(ORSView.COMPENSATION_LIST_CTL, request, response);
 				return;
 			} else if (OP_DELETE.equalsIgnoreCase(op)) {
 				pageNo = 1;
 				if (ids != null && ids.length > 0) {
-					StockPurchaseDTO deletedto = new StockPurchaseDTO();
+					CompensationDTO deletedto = new CompensationDTO();
 					for (String id : ids) {
 						deletedto.setId(DataUtility.getLong(id));
 						model.delete(deletedto);
@@ -143,12 +141,12 @@ public class StockPurchaseListCtl extends BaseCtl {
 				}
 			}
 			if (OP_BACK.equalsIgnoreCase(op)) {
-				ServletUtility.redirect(ORSView.STOCKPURCHASE_LIST_CTL, request, response);
+				ServletUtility.redirect(ORSView.COMPENSATION_LIST_CTL, request, response);
 				return;
 			}
-			dto = (StockPurchaseDTO) populateDTO(request);
+			dto = (CompensationDTO) populateDTO(request);
 			list = model.search(dto, pageNo, pageSize);
-		
+
 			ServletUtility.setDto(dto, request);
 			next = model.search(dto, pageNo + 1, pageSize);
 
@@ -174,13 +172,14 @@ public class StockPurchaseListCtl extends BaseCtl {
 			ServletUtility.handleException(e, request, response);
 			return;
 		} catch (Exception e) {
-// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
 	@Override
 	protected String getView() {
-		return ORSView.STOCKPURCHASE_LIST_VIEW;
+		// TODO Auto-generated method stub
+		return ORSView.COMPENSATION_LIST_VIEW;
 	}
+
 }

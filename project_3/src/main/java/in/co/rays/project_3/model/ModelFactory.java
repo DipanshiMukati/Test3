@@ -163,18 +163,23 @@ public final class ModelFactory {
 
 		return facultyModel;
 	}
-	public StockPurchaseModelInt getStockPurchaseModel() {
-
-		StockPurchaseModelInt StockPurchaseModel = (StockPurchaseModelInt) modelCache.get("StockPurchaseModel");
-		if (StockPurchaseModel == null) {
+	
+	
+public CompensationModelInt getCompensationModel() {
+	
+		
+		CompensationModelInt CompensationModel = (CompensationModelInt) modelCache.get("Model");
+		if (CompensationModel == null) {
 			if ("Hibernate".equals(DATABASE)) {
-				StockPurchaseModel = new StockPurchaseModelHibImp();
+				CompensationModel = new CompensationModelHibImp();
 			}
-			modelCache.put("StockPurchaseModel", StockPurchaseModel);
-
+			
+			modelCache.put("CompensationModel", CompensationModel);
 		}
 
-		return StockPurchaseModel;
+		return CompensationModel;
+
+
 	}
 
 

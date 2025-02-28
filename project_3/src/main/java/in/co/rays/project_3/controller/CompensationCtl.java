@@ -1,4 +1,3 @@
-
 package in.co.rays.project_3.controller;
 
 import java.io.IOException;
@@ -11,103 +10,101 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import in.co.rays.project_3.dto.BaseDTO;
-import in.co.rays.project_3.dto. StockPurchaseDTO;
+import in.co.rays.project_3.dto.CompensationDTO;
 import in.co.rays.project_3.exception.ApplicationException;
 import in.co.rays.project_3.exception.DuplicateRecordException;
 import in.co.rays.project_3.model.ModelFactory;
-import in.co.rays.project_3.model. StockPurchaseModelInt;
+import in.co.rays.project_3.model.CompensationModelInt;
 import in.co.rays.project_3.util.DataUtility;
 import in.co.rays.project_3.util.DataValidator;
 import in.co.rays.project_3.util.PropertyReader;
 import in.co.rays.project_3.util.ServletUtility;
 
-@WebServlet(name = "StockPurchaseCtl", urlPatterns = { "/ctl/StockPurchaseCtl" })
-public class  StockPurchaseCtl extends BaseCtl{
+@WebServlet(name = "CompensationCtl", urlPatterns = { "/ctl/CompensationCtl" })
+public class CompensationCtl extends BaseCtl {
+
 	@Override
 	protected void preload(HttpServletRequest request) {
 
-	
 		Map<Integer, String> map = new HashMap();
-		map.put(1, "Market");
-		map.put(2, "Limit");
-	
-		
-		request.setAttribute("imp", map);
-	    
+		map.put(1, "Boss");
+		map.put(2, "Manager");
+		map.put(3, "Worker");
+
+		request.setAttribute("staffmember1", map);
+
+		Map<Integer, String> map1 = new HashMap();
+		map1.put(1, "Active");
+		map1.put(2, "Inactive");
+
+		request.setAttribute("state1", map1);
+
 	}
+
 	protected boolean validate(HttpServletRequest request) {
 		boolean pass = true;
 
-		if (DataValidator.isNull(request.getParameter("quantity"))) {
-			request.setAttribute("quantity", PropertyReader.getValue("error.require", "quantity"));
+		if (DataValidator.isNull(request.getParameter("staffMember"))) {
+			request.setAttribute("staffMember", PropertyReader.getValue("error.require", "staffMember"));
 			pass = false;
 
+		}
+		else if (!DataValidator.isName(request.getParameter("staffMember"))) {
+			request.setAttribute("staffMember", "staffMember name must contains alphabets only");
+			pass = false;
 
-		} else if (!DataValidator.isInteger(request.getParameter("quantity"))) {
-			request.setAttribute("quantity", PropertyReader.getValue("error.integer", "Quantity"));
+		}
+
+		if (DataValidator.isNull(request.getParameter("paymentAmount"))) {
+			request.setAttribute("paymentAmount", PropertyReader.getValue("error.require", " paymentAmount"));
+
+			pass = false;
+		}
+		else if (!DataValidator.isInteger(request.getParameter("paymentAmount"))) {
+			request.setAttribute("paymentAmount", "paymentAmount name must contains i only");
 			pass = false;
 		}
 
-		
-		if (DataValidator.isNull(request.getParameter("purchasePrice"))) {
-			request.setAttribute("purchasePrice", PropertyReader.getValue("error.require", "purchasePrice"));
-			System.out.println(pass);
-		
-	} else if (!DataValidator.isFloat(request.getParameter("purchasePrice"))) {
-			request.setAttribute("purchasePrice", "Purchase Price contains numerical vlaue only");
+		if (DataValidator.isNull(request.getParameter("dateApplied"))) {
+			request.setAttribute("dateApplied", PropertyReader.getValue("error.require", " dateApplied"));
+
 			pass = false;
-			}
-		if (!OP_UPDATE.equalsIgnoreCase(request.getParameter("operation"))) {
-			
-			
-			if (DataValidator.isNull(request.getParameter("purchaseDate"))) {
-				request.setAttribute("purchaseDate", PropertyReader.getValue("error.require", "purchaseDate"));
-				pass = false;
-			
-			}
-					
-			if(DataValidator.isNull(request.getParameter("orderType"))) {
-			  request.setAttribute("orderType", PropertyReader.getValue("error.require", "orderType"));
-			  pass = false;
-		
-			return pass;
-			
-			
-				
-		
-	}
-			
-}
+		}
+
+		if (DataValidator.isNull(request.getParameter("state"))) {
+			request.setAttribute("state", PropertyReader.getValue("error.require", " state"));
+
+			pass = false;
+		}
+
 		return pass;
+
 	}
+
 	protected BaseDTO populateDTO(HttpServletRequest request) {
-		 StockPurchaseDTO dto = new  StockPurchaseDTO();
-		
-         
-         System.out.println(request.getParameter("purchaseDate"));      
-   
-		 dto.setId(DataUtility.getLong(request.getParameter("id")));
-		 dto.setQuantity(DataUtility.getInt(request.getParameter("quantity")));
-		 dto.setPurchasePrice(DataUtility.getDouble(request.getParameter("purchasePrice")));
-         dto.setPurchaseDate(DataUtility.getDate(request.getParameter("purchaseDate")));
+		CompensationDTO dto = new CompensationDTO();
 
-         dto.setOrderType(DataUtility.getString(request.getParameter("orderType")));
-         
+		System.out.println(request.getParameter("dob"));
 
-        populateBean(dto,request);
-		
+		dto.setId(DataUtility.getLong(request.getParameter("id")));
+		dto.setStaffMember(DataUtility.getString(request.getParameter("staffMember")));
+		dto.setPaymentAmount(DataUtility.getInt(request.getParameter("paymentAmount")));
+		dto.setDateApplied(DataUtility.getDate(request.getParameter("dateApplied")));
+		dto.setState(DataUtility.getString(request.getParameter("state")));
+
+		populateBean(dto, request);
 
 		return dto;
 
 	}
-	
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws IOException, ServletException {
 		String op = DataUtility.getString(request.getParameter("operation"));
-		 StockPurchaseModelInt model = ModelFactory.getInstance().getStockPurchaseModel();
+		CompensationModelInt model = ModelFactory.getInstance().getCompensationModel();
 		long id = DataUtility.getLong(request.getParameter("id"));
 		if (id > 0 || op != null) {
-			 StockPurchaseDTO dto;
+			CompensationDTO dto;
 			try {
 				dto = model.findByPK(id);
 				ServletUtility.setDto(dto, request);
@@ -119,24 +116,25 @@ public class  StockPurchaseCtl extends BaseCtl{
 		}
 		ServletUtility.forward(getView(), request, response);
 	}
-	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws IOException, ServletException {
 		String op = DataUtility.getString(request.getParameter("operation"));
-		 StockPurchaseModelInt model = ModelFactory.getInstance().getStockPurchaseModel();
+		CompensationModelInt model = ModelFactory.getInstance().getCompensationModel();
+
 		long id = DataUtility.getLong(request.getParameter("id"));
-		if (OP_SAVE.equalsIgnoreCase(op)||OP_UPDATE.equalsIgnoreCase(op)) {
-			 StockPurchaseDTO dto = ( StockPurchaseDTO) populateDTO(request);
+		if (OP_SAVE.equalsIgnoreCase(op) || OP_UPDATE.equalsIgnoreCase(op)) {
+			CompensationDTO dto = (CompensationDTO) populateDTO(request);
 			try {
 				if (id > 0) {
 					model.update(dto);
-					
+
 					ServletUtility.setSuccessMessage("Data is successfully Update", request);
 				} else {
-					
+
 					try {
-						 model.add(dto);
-					 
-						 ServletUtility.setDto(dto, request);
+						model.add(dto);
+						ServletUtility.setDto(dto, request);
 						ServletUtility.setSuccessMessage("Data is successfully saved", request);
 					} catch (ApplicationException e) {
 						ServletUtility.handleException(e, request, response);
@@ -148,8 +146,7 @@ public class  StockPurchaseCtl extends BaseCtl{
 
 				}
 				ServletUtility.setDto(dto, request);
-				
-				
+
 			} catch (ApplicationException e) {
 				ServletUtility.handleException(e, request, response);
 				return;
@@ -159,10 +156,10 @@ public class  StockPurchaseCtl extends BaseCtl{
 			}
 		} else if (OP_DELETE.equalsIgnoreCase(op)) {
 
-			 StockPurchaseDTO dto = ( StockPurchaseDTO) populateDTO(request);
+			CompensationDTO dto = (CompensationDTO) populateDTO(request);
 			try {
 				model.delete(dto);
-				ServletUtility.redirect(ORSView. STOCKPURCHASE_LIST_CTL, request, response);
+				ServletUtility.redirect(ORSView.COMPENSATION_LIST_CTL, request, response);
 				return;
 			} catch (ApplicationException e) {
 				ServletUtility.handleException(e, request, response);
@@ -171,26 +168,21 @@ public class  StockPurchaseCtl extends BaseCtl{
 
 		} else if (OP_CANCEL.equalsIgnoreCase(op)) {
 
-			ServletUtility.redirect(ORSView. STOCKPURCHASE_LIST_CTL, request, response);
+			ServletUtility.redirect(ORSView.COMPENSATION_LIST_CTL, request, response);
 			return;
 		} else if (OP_RESET.equalsIgnoreCase(op)) {
 
-			ServletUtility.redirect(ORSView. STOCKPURCHASE_CTL, request, response);
+			ServletUtility.redirect(ORSView.COMPENSATION_CTL, request, response);
 			return;
 		}
 		ServletUtility.forward(getView(), request, response);
 
 	}
-	
-	
-	
+
 	@Override
 	protected String getView() {
 		// TODO Auto-generated method stub
-		return ORSView. STOCKPURCHASE_VIEW;
+		return ORSView.COMPENSATION_VIEW;
 	}
-
-	
-
 
 }

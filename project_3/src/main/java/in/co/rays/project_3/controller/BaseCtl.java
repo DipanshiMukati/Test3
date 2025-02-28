@@ -65,6 +65,7 @@ public abstract class BaseCtl extends HttpServlet{
      * @param request
      */
     protected void preload(HttpServletRequest request) {
+    	
     }
 
     protected BaseDTO populateBean(BaseDTO dto,HttpServletRequest request){

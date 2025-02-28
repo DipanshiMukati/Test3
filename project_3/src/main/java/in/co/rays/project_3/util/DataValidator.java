@@ -4,6 +4,12 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * DataValidator class is used to validate the data entered by user
  * 
@@ -248,6 +254,8 @@ public class DataValidator {
 		return pass;
 	}
 
+	
+
 	/**
 	 * Check if value is valid EmailId
 	 * 
@@ -337,4 +345,63 @@ public class DataValidator {
 		System.out.println(isName("Ankur Agrawal"));
 	}
 
+	 public static boolean isAlphanumeric(String input) {
+	        String pattern = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,20})";
+	        return input.matches(pattern);
+	    }
+	 
+	 public static boolean isTooLong(String val, int maxLength) {
+		    if (isNotNull(val)) {
+		        return val.length() > maxLength;
+		    } else {
+		        return false;
+		    }
+		}
+	 public boolean validateDates(HttpServletRequest request) {
+	     boolean pass = true;
+
+	     // Get the startDate and endDate from the request
+	     String startDate = request.getParameter("startDate");
+	     String endDate = request.getParameter("endDate");
+
+	     // Check if the startDate and endDate are valid date strings (in the format yyyy-MM-dd)
+	     if (isValidDate(startDate) && isValidDate(endDate)) {
+	         Date start = parseDate(startDate);
+	         Date end = parseDate(endDate);
+
+	         // Check if the endDate is before the startDate
+	         if (start != null && end != null && !end.after(start)) {
+	             // If the endDate is not after the startDate
+	             request.setAttribute("endDate", PropertyReader.getValue("error.endDateBeforeStart", "endDate"));
+	             pass = false;
+	         }
+	     }
+
+	     return pass;
+	 }
+
+	 // Method to check if a date is in valid format (e.g., yyyy-MM-dd)
+	 public static boolean isValidDate(String dateStr) {
+	     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	     sdf.setLenient(false); // To ensure strict parsing
+	     try {
+	         sdf.parse(dateStr); // Try to parse the date
+	         return true;
+	     } catch (ParseException e) {
+	         return false; // If parsing fails, it's an invalid date
+	     }
+	 }
+
+	 // Method to parse the date into a Date object
+	 private Date parseDate(String dateStr) {
+	     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	     try {
+	         return sdf.parse(dateStr);
+	     } catch (ParseException e) {
+	         return null; // Return null if parsing fails
+	     }
+	 }
+
+	 
+	 
 }
